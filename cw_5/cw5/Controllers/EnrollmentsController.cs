@@ -56,10 +56,9 @@ namespace cw5.Controllers
                       var execread = com.ExecuteReader();
                       if (!execread.Read())
                       {
-                          com.CommandText = "Insert into Enrollment values (" +
-                              "(SELECT MAX(idEnrollment)+1 from Enrollment),1," + idstudies + ",GetDate()";
+                          com.CommandText = "Insert into Enrollment values (" + "(SELECT MAX(idEnrollment)+1 from Enrollment),1," + idstudies + ",GetDate())";
                       }
-                      com.CommandText = "Select * from Student WHERE IndexNumber=@indexNumber";
+                      com.CommandText = "Select * from Student WHERE indexNumber=@indexNumber";
                       com.Parameters.AddWithValue("indexNumber", request.IndexNumber);
 
                       var studentread = com.ExecuteReader();
@@ -67,8 +66,9 @@ namespace cw5.Controllers
                       if (!studentread.Read())
                       {
                           tran.Rollback();
-                          return BadRequest("Index jest nieunikalny.");
+                          return BadRequest("index jest bledny.");
                       }
+
                       com.CommandText = "Insert into Student values(" +request.IndexNumber + "," +  request.FirstName + "," + 
                           request.LastName + "," + request.BirthDate + "," + idstudies + ")";
                      

@@ -43,7 +43,7 @@ namespace cw5.Controllers
                     if (!dr.Read())
                     {
                         tran.Rollback();
-                        return BadRequest("nie istneieja");
+                        return BadRequest("nie istneieje");
                     }
 
                    
