@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using cw5.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace cw5.Controllers
+{
+
+    [ApiController]
+    [Route("api/students")]
+    public class StudentsController : ControllerBase
+    {
+
+        [HttpGet]
+        public IActionResult GetStudent()
+        {
+            using (var client = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18780;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = client;
+                com.CommandText = "Select IndexNumber,FirstName,LastName,BirthDate,Semester,Name from Studies inner join enrollment on studies.idStudy=enrollment.idStudy" +
+                    " inner join Student on enrollment.idEnrollment=student.idEnrollment";
+                client.Open();
+                var dr = com.ExecuteReader();
+                String students = "";
+                while (dr.Read())
+                {
+                    Student student = new Student();
+                    student.IndexNumber = dr["IndexNumber"].ToString();
+                    student.FirstName = dr["FirstName"].ToString();
+                    student.LastName = dr["LastName"].ToString();
+                    student.BirthDate = dr["BirthDate"].ToString();
+                    student.Semester = dr["Semester"].ToString() + " Semestr";
+                    student.Studies = dr["Name"].ToString();
+
+                    students = students + student.ToString() + "\n";
+
+                }
+                return Ok(students);
+            }
+           
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetStudent(int id)
+        {
+            using (var client = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18780;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = client;
+                string SqlId = "'" + id + "'";//SQLINjection localhost:5001/api/students/s101';Drop%20Table%20Student--  takim zapytaniem usunalem sobie tabele, w sumie mozna by tym sposobem cala baze usunac
+                com.CommandText = "Select * from Studies inner join enrollment on studies.idStudy=enrollment.idStudy" +
+                    " inner join Student on enrollment.idEnrollment=student.idEnrollment where IndexNumber= @id";//+SqlId;
+                com.Parameters.AddWithValue("id", id);
+
+                client.Open();
+                var dr = com.ExecuteReader();
+                dr.Read();
+                Student student = new Student();
+                student.IndexNumber = dr["IndexNumber"].ToString();
+                student.FirstName = dr["FirstName"].ToString();
+                student.LastName = dr["LastName"].ToString();
+                student.BirthDate = dr["BirthDate"].ToString();
+                student.Semester = dr["Semester"].ToString() + " Semestr";
+                student.Studies = dr["Name"].ToString();
+
+                return Ok(student.ToString());
+            }
+        }
+        }
+}
